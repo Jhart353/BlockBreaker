@@ -1,13 +1,16 @@
 package com.jhartz;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.MemoryImageSource;
 import java.io.File;
 import java.io.IOException;
 
@@ -38,6 +41,15 @@ public class Field extends Frame implements Runnable{
 	Graphics memoryGraphics;
 
 	Field() {
+		
+		int[] pixels = new int[16 * 16];
+	    Image image = Toolkit.getDefaultToolkit().createImage(
+	        new MemoryImageSource(16, 16, pixels, 0, 16));
+	    Cursor transparentCursor = Toolkit.getDefaultToolkit().createCustomCursor(
+	        image, new Point(0, 0), "invisibleCursor");
+	    
+	    setCursor(transparentCursor);
+	    
 		setTitle("Block Breaker");
 		
 		int taskBarSize = 60;
@@ -81,7 +93,7 @@ public class Field extends Frame implements Runnable{
 	@Override
 	public void run() {
 		int left = 0;
-		int top = 0 + 25;
+		int top = 0 + getInsets().top;
 		int right = getWidth();
 		int bottom = getHeight();
 		
@@ -107,8 +119,8 @@ public class Field extends Frame implements Runnable{
 	}
 	
 	public void checkCollision() {
-		if (ball.location.x > paddle.location.x && ball.location.x + ball.size < paddle.location.x + paddle.paddleWidth){
-			if (ball.location.y + ball.size > paddle.location.y) {
+		if (ball.location.x + ball.size > paddle.location.x && ball.location.x < paddle.location.x + paddle.paddleWidth){			
+			if (ball.location.y + ball.size > paddle.location.y && ball.location.y < paddle.location.y) {
 				int paddleCenter = paddle.location.x + (paddle.paddleWidth / 2);
 				int ballCenter = ball.location.x + (ball.size / 2);
 				int ballOffset = paddleCenter - ballCenter;
