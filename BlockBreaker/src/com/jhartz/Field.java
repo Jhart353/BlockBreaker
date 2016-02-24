@@ -17,47 +17,70 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.script.ScriptException;
 
+/*
+ * Author: Justin Hartz
+ * Creation Date: 2/23/16
+ */
 
 public class Field extends Frame implements Runnable{
-	
-	/**
-	 * 
+	/*
+	 * Default serialVersionUID.
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	Image ballImage, paddleImage;
-	Image memoryImage;
+	/*
+	 * Visuals for use within the application.
+	 */
+	Image ballImage, paddleImage, memoryImage;
 	
+	/*
+	 * Main thread used to run the game.
+	 */
 	Thread thread;
 	
-	MainBall ball;
+	Ball ball;
 	
-	MainPaddle paddle;
+	Paddle paddle;
 	
+	/*
+	 * Time in ms that the thread will sleep between updates.
+	 */
 	int sleepTime = 20;
 	
+	/*
+	 * Handles the size of the screen.
+	 */
 	Dimension screenSize;
 	
+	/*
+	 * Use to handle double buffering to make visual seamless.
+	 */
 	Graphics memoryGraphics;
-
+	
+	/*
+	 * Initialize everything needed for the game to work correctly.
+	 * Start the game thread.
+	 */
 	Field() {
-		
-		int[] pixels = new int[16 * 16];
-	    Image image = Toolkit.getDefaultToolkit().createImage(
-	        new MemoryImageSource(16, 16, pixels, 0, 16));
-	    Cursor transparentCursor = Toolkit.getDefaultToolkit().createCustomCursor(
-	        image, new Point(0, 0), "invisibleCursor");
-	    
-	    setCursor(transparentCursor);
-	    
 		setTitle("Block Breaker");
+	    
+		// Call and set th cursor to be invisible while over the window.
+	    setCursor(createInvisibleCursor());	
 		
-		int taskBarSize = 60;
+	    // Set the size of the window
 		screenSize = new Dimension(1200, 750);
-		setSize(screenSize.width, screenSize.height - taskBarSize);
+		setSize(screenSize.width, screenSize.height);
+		
+		// Center the window
+		setLocationRelativeTo(null);
+		
+		// Make the user unable to change the window dimensions
 		setResizable(false);
+		
+		// Show the window to the user
 		setVisible(true);	
 		
+		// Load the images into their respective variable and check for errors
 		try {
 			ballImage = ImageIO.read(new File("Images/Ball.png"));
 			paddleImage = ImageIO.read(new File("Images/Paddle.png"));
@@ -65,41 +88,45 @@ public class Field extends Frame implements Runnable{
 			e.printStackTrace();
 		}
 		
+		// Allow the window to close when the user hits the red X in the top left corner
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent windowEvent) {
 				System.exit(0);
 			}
 		});
 		
+		// Initialize double buffering variables
 		memoryImage = createImage(getSize().width, getSize().height); 
 		memoryGraphics = memoryImage.getGraphics(); 
 
+		// Initialize and run the game thread
 		thread = new Thread(this);
 		thread.start();
 		
 	}
 	
+	/*
+	 * Starting point of the application
+	 * Calls the class to begin the game logic.
+	 */
 	public static void main(String [] args){
 		Field field = new Field();
 	}
 	
-	public void update(Graphics g) {
-		memoryGraphics.fillRect(0, 0, screenSize.width, screenSize.height);
-		ball.drawBall(memoryGraphics);
-		paddle.drawPaddle(memoryGraphics);
-		g.drawImage(memoryImage, 0, 0, this);
-	}
-
+	/*
+	 * @see java.lang.Runnable#run()
+	 * Initializes the thread and starts the game loop.
+	 */
 	@Override
 	public void run() {
-		int left = 0;
+		int left = 0 + getInsets().left;
 		int top = 0 + getInsets().top;
-		int right = getWidth();
-		int bottom = getHeight();
+		int right = getWidth() - getInsets().right;
+		int bottom = getHeight() - getInsets().bottom;
 		
 		Rectangle bounds = new Rectangle(left, top, right, bottom);
-		ball = new MainBall(ballImage, bounds, this);
-		paddle = new MainPaddle(paddleImage, bounds, this);
+		ball = new Ball(ballImage,bounds,this);
+		paddle = new Paddle(paddleImage, bounds, this);
 		
 		while (true) {
 			try {
@@ -118,10 +145,25 @@ public class Field extends Frame implements Runnable{
 		}
 	}
 	
+	/*
+	 * @see java.awt.Container#update(java.awt.Graphics)
+	 * Draws the objets to the frame.
+	 */
+	public void update(Graphics g) {
+		memoryGraphics.fillRect(0, 0, screenSize.width, screenSize.height);
+		ball.drawBall(memoryGraphics);
+		paddle.drawPaddle(memoryGraphics);
+		g.drawImage(memoryImage, 0, 0, this);
+	}
+	
+	/*
+	 * Handles collisions of the ball with the window borders 
+	 * the paddle and the blocks.
+	 */
 	public void checkCollision() {
-		if (ball.location.x + ball.size > paddle.location.x && ball.location.x < paddle.location.x + paddle.paddleWidth){			
+		if (ball.location.x + ball.size > paddle.location.x && ball.location.x < paddle.location.x + paddle.width){			
 			if (ball.location.y + ball.size > paddle.location.y && ball.location.y < paddle.location.y) {
-				int paddleCenter = paddle.location.x + (paddle.paddleWidth / 2);
+				int paddleCenter = paddle.location.x + (paddle.width / 2);
 				int ballCenter = ball.location.x + (ball.size / 2);
 				int ballOffset = paddleCenter - ballCenter;
 				ball.location.y = paddle.location.y - ball.size;
@@ -129,5 +171,19 @@ public class Field extends Frame implements Runnable{
 				ball.changeYVel();
 			}
 		}
+	}
+	
+	/*
+	 * Initializes a clear cursor so it will be hidden while the
+	 * user is playing the game.
+	 */
+	public Cursor createInvisibleCursor() {
+		int[] pixels = new int[16 * 16];
+	    Image image = Toolkit.getDefaultToolkit().createImage(
+	        new MemoryImageSource(16, 16, pixels, 0, 16));
+	    Cursor transparentCursor = Toolkit.getDefaultToolkit().createCustomCursor(
+	        image, new Point(0, 0), "invisibleCursor");
+	    
+	    return transparentCursor;
 	}
 }
