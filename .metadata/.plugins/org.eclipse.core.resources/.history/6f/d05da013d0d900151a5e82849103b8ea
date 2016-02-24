@@ -1,0 +1,19 @@
+package com.jhartz;
+
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Point;
+
+public abstract class Paddle {
+
+	Image image;
+	
+	Point location;
+	
+	Integer width;
+	Integer height;
+	
+	public abstract void move();
+	
+	public abstract void drawPaddle(Graphics g):
+}

@@ -1,0 +1,31 @@
+package com.jhartz;
+
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Rectangle;
+
+public class MainBall extends Ball {
+	
+	public MainBall(Image image, Rectangle bounds, Component field) {
+		this.field = field;
+		this.image = image;
+		this.bounds = bounds;
+		this.size = 20;
+		this.location = new Point((int)(bounds.width + (.5 * size))/2, (int)(bounds.height + (.5 * size))/2);
+		this.velocity = new Point(0,10);
+	}
+
+	@Override
+	public void move() {
+		location.x += velocity.x;
+		location.y += velocity.y;
+		
+	}
+
+	@Override
+	public void drawBall(Graphics g) {
+		g.drawImage(image, location.x, location.y, field);
+	}
+}

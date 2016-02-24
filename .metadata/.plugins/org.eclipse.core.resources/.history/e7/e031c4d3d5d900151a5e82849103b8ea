@@ -1,0 +1,6 @@
+package com.jhartz;
+
+public class BallBelowBoundsException {
+
+		public BallBelowBoundsException() { super(); }
+}

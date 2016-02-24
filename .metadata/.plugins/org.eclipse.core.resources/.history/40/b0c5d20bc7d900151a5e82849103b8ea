@@ -1,0 +1,24 @@
+package com.jhartz;
+
+import java.awt.Component;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.util.Vector;
+
+public class Ball {
+
+	Component field;
+	
+	Rectangle bounds;
+	
+	Vector location;
+	
+	Vector velocity;
+	
+	Image image;
+	
+	public void move();
+	
+	public void DrawBall(Graphics g);
+	
+}

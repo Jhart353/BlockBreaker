@@ -1,0 +1,23 @@
+package com.jhartz;
+
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Rectangle;
+
+public class MainBall extends Ball {
+	
+	public MainBall(Image image, Rectangle bounds, Component field) {
+		
+	}
+
+	@Override
+	public void move() {
+		
+	}
+
+	@Override
+	public void drawBall(Graphics g) {
+		
+	}
+}
