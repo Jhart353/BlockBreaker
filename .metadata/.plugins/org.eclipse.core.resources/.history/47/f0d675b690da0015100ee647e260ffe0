@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.script.ScriptException;
 
 
 public class Field extends Frame implements Runnable{
@@ -21,23 +22,33 @@ public class Field extends Frame implements Runnable{
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	Image ballImage;
+	Image ballImage, paddleImage;
+	Image memoryImage;
 	
 	Thread thread;
 	
 	MainBall ball;
+	
+	MainPaddle paddle;
+	
+	int sleepTime = 50;
+	
+	Dimension screenSize;
+	
+	Graphics memoryGraphics;
 
 	Field() {
 		setTitle("Block Breaker");
 		
 		int taskBarSize = 60;
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		screenSize = new Dimension(1200, 750);
 		setSize(screenSize.width, screenSize.height - taskBarSize);
 		setResizable(false);
 		setVisible(true);	
 		
 		try {
 			ballImage = ImageIO.read(new File("Images/Ball.png"));
+			paddleImage = ImageIO.read(new File("Images/Paddle.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -48,6 +59,9 @@ public class Field extends Frame implements Runnable{
 			}
 		});
 		
+		memoryImage = createImage(getSize().width, getSize().height); 
+		memoryGraphics = memoryImage.getGraphics(); 
+
 		thread = new Thread(this);
 		thread.start();
 		
@@ -58,23 +72,46 @@ public class Field extends Frame implements Runnable{
 	}
 	
 	public void update(Graphics g) {
-		ball.drawBall(g);
+		memoryGraphics.fillRect(0, 0, screenSize.width, screenSize.height);
+		ball.drawBall(memoryGraphics);
+		paddle.drawPaddle(memoryGraphics);
+		g.drawImage(memoryImage, 0, 0, this);
 	}
 
 	@Override
 	public void run() {
 		int left = 0;
-		int top = 0;
+		int top = 0 + 25;
 		int right = getWidth();
 		int bottom = getHeight();
 		
 		Rectangle bounds = new Rectangle(left, top, right, bottom);
-		ball = new MainBall(ballImage,bounds,this);
+		ball = new MainBall(ballImage, bounds, this);
+		paddle = new MainPaddle(paddleImage, bounds, this);
 		
 		while (true) {
-			ball.move();
-			Thread.sleep(1000);
+			try {
+				ball.move();
+			} catch (BallBelowBoundsException e1) {
+				System.exit(0);
+			}
+			paddle.move();
+			checkCollision();
+			try {
+				Thread.sleep(sleepTime);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			repaint();
+		}
+	}
+	
+	public void checkCollision() {
+		if (ball.location.x > paddle.location.x && ball.location.x + ball.size < paddle.location.x + paddle.paddleWidth){
+			if (ball.location.y + ball.size > paddle.location.y) {
+				ball.location.y = paddle.location.y - ball.size;
+				ball.changeYVel();
+			}
 		}
 	}
 }

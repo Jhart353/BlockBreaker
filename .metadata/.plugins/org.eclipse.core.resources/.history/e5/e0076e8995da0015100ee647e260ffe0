@@ -109,11 +109,11 @@ public class Field extends Frame implements Runnable{
 	public void checkCollision() {
 		if (ball.location.x > paddle.location.x && ball.location.x + ball.size < paddle.location.x + paddle.paddleWidth){
 			if (ball.location.y + ball.size > paddle.location.y) {
-				int paddleCenter = paddle.location.x + (paddle.paddleWidth / 2);
+				//int paddleCenter = paddle.location.x + (paddle.width / 2);
 				int ballCenter = ball.location.x + (ball.size / 2);
-				int ballOffset = paddleCenter - ballCenter;
+				//int ballOffset = paddleCenter - ballCenter;
 				ball.location.y = paddle.location.y - ball.size;
-				ball.velocity.x = -ballOffset / 5;
+				//ball.velocity.x = ballOffset / 10;
 				ball.changeYVel();
 			}
 		}

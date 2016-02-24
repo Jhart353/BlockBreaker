@@ -14,7 +14,7 @@ public class MainBall extends Ball {
 		this.bounds = bounds;
 		this.size = 15;
 		this.location = new Point((int)(bounds.width + (.5 * size))/2, (int)(bounds.height + (.5 * size))/2);
-		this.velocity = new Point(2,4);
+		this.velocity = new Point(6,4);
 	}
 
 	@Override

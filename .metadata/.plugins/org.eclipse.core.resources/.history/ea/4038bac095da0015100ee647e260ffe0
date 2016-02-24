@@ -113,7 +113,7 @@ public class Field extends Frame implements Runnable{
 				int ballCenter = ball.location.x + (ball.size / 2);
 				int ballOffset = paddleCenter - ballCenter;
 				ball.location.y = paddle.location.y - ball.size;
-				ball.velocity.x = -ballOffset / 5;
+				ball.velocity.x = -ballOffset / 9;
 				ball.changeYVel();
 			}
 		}
