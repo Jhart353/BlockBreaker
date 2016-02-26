@@ -6,5 +6,5 @@ public interface BallAction {
 
 	public void move() throws BallBelowBoundsException;
 	
-	public void drawBall(Graphics g);
+	public void draw(Graphics g);
 }

@@ -26,7 +26,7 @@ public class Ball implements BallAction{
 		this.field = field;
 		this.bounds = bounds;
 		this.location = new Point((int)(bounds.width + (.5 * size))/2, (int)(bounds.height + (.5 * size))/2);
-		this.velocity = new Point(2,4);
+		this.velocity = new Point(0,1);
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public class Ball implements BallAction{
 	}
 
 	@Override
-	public void drawBall(Graphics g) {
+	public void draw(Graphics g) {
 		g.drawImage(image, location.x, location.y, size, size, field);
 	}
 	

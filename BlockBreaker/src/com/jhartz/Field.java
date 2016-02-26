@@ -1,5 +1,6 @@
 package com.jhartz;
 
+import java.awt.AWTException;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -7,7 +8,10 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Robot;
 import java.awt.Toolkit;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.MemoryImageSource;
@@ -58,29 +62,34 @@ public class Field extends Frame implements Runnable{
 	Graphics memoryGraphics;
 	
 	/*
+	 * Use to move cursor to initial position when game starts.
+	 */
+	Robot robot;
+	
+	/*
 	 * Initialize everything needed for the game to work correctly.
 	 * Start the game thread.
 	 */
 	Field() {
 		setTitle("Block Breaker");
 	    
-		// Call and set th cursor to be invisible while over the window.
-	    setCursor(createInvisibleCursor());	
+		// Call and set the cursor to be invisible while over the window.
+	  	setCursor(createInvisibleCursor());	
 		
-	    // Set the size of the window
+		// Set the size of the window.
 		screenSize = new Dimension(1200, 750);
 		setSize(screenSize.width, screenSize.height);
 		
-		// Center the window
+		// Center the window.
 		setLocationRelativeTo(null);
 		
-		// Make the user unable to change the window dimensions
+		// Make the user unable to change the window dimensions.
 		setResizable(false);
 		
-		// Show the window to the user
+		// Show the window to the user.
 		setVisible(true);	
 		
-		// Load the images into their respective variable and check for errors
+		// Load the images into their respective variable and check for errors.
 		try {
 			ballImage = ImageIO.read(new File("Images/Ball.png"));
 			paddleImage = ImageIO.read(new File("Images/Paddle.png"));
@@ -88,18 +97,27 @@ public class Field extends Frame implements Runnable{
 			e.printStackTrace();
 		}
 		
-		// Allow the window to close when the user hits the red X in the top left corner
+		// Allow the window to close when the user hits the red X in the top left corner.
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent windowEvent) {
 				System.exit(0);
 			}
 		});
 		
-		// Initialize double buffering variables
+		// Initialize double buffering variables.
 		memoryImage = createImage(getSize().width, getSize().height); 
 		memoryGraphics = memoryImage.getGraphics(); 
-
-		// Initialize and run the game thread
+		
+		
+		
+		// Initialize robot for mouse move.
+		try {
+			robot = new Robot();
+		} catch (AWTException e1) {
+			e1.printStackTrace();
+		}
+		
+		// Initialize and run the game thread.
 		thread = new Thread(this);
 		thread.start();
 		
@@ -127,15 +145,28 @@ public class Field extends Frame implements Runnable{
 		Rectangle bounds = new Rectangle(left, top, right, bottom);
 		ball = new Ball(ballImage,bounds,this);
 		paddle = new Paddle(paddleImage, bounds, this);
-		
+				
+		// Listener to allow the paddle to follow the cursor.
+		MouseMotionListener mML = new MouseMotionListener() {			
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				paddle.move(e.getX());
+			}
+
+			@Override
+			public void mouseDragged(MouseEvent e) {}
+		};
+		addMouseMotionListener(mML);
+				
 		while (true) {
 			try {
 				ball.move();
 			} catch (BallBelowBoundsException e1) {
 				System.exit(0);
 			}
-			paddle.move();
+			
 			checkCollision();
+			
 			try {
 				Thread.sleep(sleepTime);
 			} catch (InterruptedException e) {
@@ -151,8 +182,8 @@ public class Field extends Frame implements Runnable{
 	 */
 	public void update(Graphics g) {
 		memoryGraphics.fillRect(0, 0, screenSize.width, screenSize.height);
-		ball.drawBall(memoryGraphics);
-		paddle.drawPaddle(memoryGraphics);
+		ball.draw(memoryGraphics);
+		paddle.draw(memoryGraphics);
 		g.drawImage(memoryImage, 0, 0, this);
 	}
 	
@@ -167,7 +198,7 @@ public class Field extends Frame implements Runnable{
 				int ballCenter = ball.location.x + (ball.size / 2);
 				int ballOffset = paddleCenter - ballCenter;
 				ball.location.y = paddle.location.y - ball.size;
-				ball.velocity.x = -ballOffset / 5;
+				ball.velocity.x = -ballOffset / 10;
 				ball.changeYVel();
 			}
 		}

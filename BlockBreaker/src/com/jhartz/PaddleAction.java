@@ -4,7 +4,7 @@ import java.awt.Graphics;
 
 public interface PaddleAction {
 	
-	public void move();
+	public void move(Integer xLoc);
 	
-	public void drawPaddle(Graphics g);
+	public void draw(Graphics g);
 }

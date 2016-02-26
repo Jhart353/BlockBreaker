@@ -29,8 +29,8 @@ public class Paddle implements PaddleAction {
 	}
 	
 	@Override
-	public void move() {
-		location.x = MouseInfo.getPointerInfo().getLocation().x - (width / 2);
+	public void move(Integer xLoc) {
+		location.x = xLoc -(width / 2);
 		if (location.x  > bounds.getMaxX() - width) {
 			location.x = (int) (bounds.getMaxX() - width);
 		} else if (location.x < bounds.getMinX()) {
@@ -39,7 +39,7 @@ public class Paddle implements PaddleAction {
 	}
 
 	@Override
-	public void drawPaddle(Graphics g) {
+	public void draw(Graphics g) {
 		g.drawImage(image, location.x, location.y, width, height, field);
 	}
 }
